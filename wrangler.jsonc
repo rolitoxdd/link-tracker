@@ -1,16 +1,18 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "link-shortener",
-  "main": "dist/_worker.js/index.js",
-  "compatibility_date": "2024-03-20",
+  "compatibility_date": "2024-04-05",
   "routes": [
-    { "pattern": "link.roli.to", "custom_domain": true }
+    {
+      "pattern": "link.roli.to",
+      "custom_domain": true
+    }
   ],
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "link-shortener-db",
-      "database_id": "TODO",
+      "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "./migrations"
     }
   ],

@@ -1,11 +1,22 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import "@/styles/global.css";
+import { Dashboard } from "@/components/Dashboard";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Basic protection is assumed via Cloudflare Access at edge, so no auth logic here.
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>roli.to - Links</title>
+  </head>
+  <body
+    class="bg-background text-foreground min-h-screen antialiased selection:bg-primary/30 dark"
+  >
+    <!-- Using dark mode by default for premium feel -->
+    <Dashboard client:load />
+  </body>
+</html>
