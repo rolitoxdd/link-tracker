@@ -13,10 +13,10 @@ const checkAuth = (request: Request) => {
 
 export const GET: APIRoute = async ({ request }) => {
   if (!checkAuth(request)) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { 
-      status: 401, 
-      headers: { "WWW-Authenticate": "Basic realm=\"API\"", "Content-Type": "application/json" } 
-    });
+    const isXHR = request.headers.get("X-Requested-With") === "XMLHttpRequest";
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (!isXHR) headers["WWW-Authenticate"] = "Basic realm=\"API\"";
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers });
   }
 
   const db = env.DB;
@@ -39,10 +39,10 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const POST: APIRoute = async ({ request }) => {
   if (!checkAuth(request)) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { 
-      status: 401, 
-      headers: { "WWW-Authenticate": "Basic realm=\"API\"", "Content-Type": "application/json" } 
-    });
+    const isXHR = request.headers.get("X-Requested-With") === "XMLHttpRequest";
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (!isXHR) headers["WWW-Authenticate"] = "Basic realm=\"API\"";
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers });
   }
 
   const db = env.DB;

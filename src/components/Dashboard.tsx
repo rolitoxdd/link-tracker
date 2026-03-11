@@ -37,7 +37,10 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
   });
 
   const headers = useMemo(() => {
-    return { "Authorization": `Basic ${btoa(`admin:${apiSecret}`)}` };
+    return { 
+      "Authorization": `Basic ${btoa(`admin:${apiSecret}`)}`,
+      "X-Requested-With": "XMLHttpRequest"
+    };
   }, [apiSecret]);
 
   const fetchStats = async (slug: string) => {
