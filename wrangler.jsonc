@@ -12,8 +12,14 @@
     {
       "binding": "DB",
       "database_name": "link-tracker-db",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "c3236076-bd19-40f6-8edd-5495e4c4bb9a",
       "migrations_dir": "./migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "176928775878434c93d009bad16b8c53"
     }
   ],
   "observability": {

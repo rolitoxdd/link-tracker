@@ -12,7 +12,8 @@
     "astro": "astro",
     "generate-types": "wrangler types",
     "postinstall": "npm run generate-types",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.0.2",
