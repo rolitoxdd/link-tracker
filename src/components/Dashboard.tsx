@@ -13,6 +13,7 @@ interface LinkData {
   target_url: string;
   created_at: string;
   clicks: number;
+  unique_visitors: number;
 }
 
 interface ClickStat {
@@ -89,7 +90,7 @@ export function Dashboard() {
 
         <Card className="border-muted shadow-sm hover:shadow-md transition-shadow dark:bg-card/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Create a New Short Link</CardTitle>
+            <CardTitle>Create a New Tracked Link</CardTitle>
             <CardDescription>Enter your destination URL and an optional custom slug.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -124,7 +125,7 @@ export function Dashboard() {
                 </div>
               </div>
               <div className="pt-2">
-                <Button type="submit" className="w-full md:w-auto shadow-sm">Shorten Link</Button>
+                <Button type="submit" className="w-full md:w-auto shadow-sm">Tracked Link</Button>
               </div>
             </form>
           </CardContent>
@@ -133,7 +134,7 @@ export function Dashboard() {
         <Card className="border-muted shadow-sm border-t-4 border-t-primary dark:bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle>Your Links</CardTitle>
-            <CardDescription>Manage and track your shortened URLs.</CardDescription>
+            <CardDescription>Manage and track your tracked URLs.</CardDescription>
           </CardHeader>
           <CardContent>
             {state.links.length === 0 ? (
@@ -148,9 +149,10 @@ export function Dashboard() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30">
-                      <TableHead>Short Link</TableHead>
+                      <TableHead>Tracked Link</TableHead>
                       <TableHead>Target URL</TableHead>
-                      <TableHead className="text-right">Clicks</TableHead>
+                      <TableHead className="text-right">Unique Visitors</TableHead>
+                      <TableHead className="text-right">Total Clicks</TableHead>
                       <TableHead className="text-right">Date</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -178,6 +180,11 @@ export function Dashboard() {
                           </TableCell>
                           <TableCell className="max-w-[150px] md:max-w-xs truncate text-muted-foreground align-middle" title={link.target_url}>
                             {link.target_url}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold align-middle">
+                            <span className="inline-flex items-center justify-center bg-secondary/10 text-secondary-foreground px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                              {link.unique_visitors || 0}
+                            </span>
                           </TableCell>
                           <TableCell className="text-right font-semibold align-middle">
                             <button
