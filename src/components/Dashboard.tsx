@@ -11,6 +11,7 @@ import { CopyIcon, LinkIcon } from "lucide-react";
 interface LinkData {
   slug: string;
   target_url: string;
+  description?: string;
   created_at: string;
   clicks: number;
   unique_visitors: number;
@@ -28,6 +29,7 @@ export function Dashboard() {
     links: [] as LinkData[],
     targetUrl: "",
     customSlug: "",
+    description: "",
     baseUrl: "",
     stats: [] as ClickStat[],
     selectedLinkStats: null as string | null,
@@ -63,11 +65,11 @@ export function Dashboard() {
     const res = await fetch("/api/links", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target_url: state.targetUrl, custom_slug: state.customSlug }),
+      body: JSON.stringify({ target_url: state.targetUrl, custom_slug: state.customSlug, description: state.description }),
     });
 
     if (res.ok) {
-      setState((prev) => ({ ...prev, targetUrl: "", customSlug: "" }));
+      setState((prev) => ({ ...prev, targetUrl: "", customSlug: "", description: "" }));
       fetchLinks();
     } else {
       alert("Failed to create link. Slug might already exist.");
@@ -124,6 +126,16 @@ export function Dashboard() {
                   </div>
                 </div>
               </div>
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Input
+                  id="description"
+                  className="bg-background shadow-sm"
+                  placeholder="What is this link for?"
+                  value={state.description}
+                  onChange={(e) => setState(prev => ({ ...prev, description: e.target.value }))}
+                />
+              </div>
               <div className="pt-2">
                 <Button type="submit" className="w-full md:w-auto shadow-sm">Tracked Link</Button>
               </div>
@@ -150,7 +162,7 @@ export function Dashboard() {
                   <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30">
                       <TableHead>Tracked Link</TableHead>
-                      <TableHead>Target URL</TableHead>
+                      <TableHead>Details</TableHead>
                       <TableHead className="text-right">Unique Visitors</TableHead>
                       <TableHead className="text-right">Total Clicks</TableHead>
                       <TableHead className="text-right">Date</TableHead>
@@ -178,8 +190,15 @@ export function Dashboard() {
                               </button>
                             </div>
                           </TableCell>
-                          <TableCell className="max-w-[150px] md:max-w-xs truncate text-muted-foreground align-middle" title={link.target_url}>
-                            {link.target_url}
+                          <TableCell className="max-w-[150px] md:max-w-xs truncate align-middle" title={link.target_url}>
+                            {link.description && (
+                              <div className="font-medium text-foreground truncate" title={link.description}>
+                                {link.description}
+                              </div>
+                            )}
+                            <div className="text-muted-foreground text-xs truncate">
+                              {link.target_url}
+                            </div>
                           </TableCell>
                           <TableCell className="text-right font-semibold align-middle">
                             <span className="inline-flex items-center justify-center bg-secondary/10 text-secondary-foreground px-2.5 py-0.5 rounded-full text-xs font-semibold">

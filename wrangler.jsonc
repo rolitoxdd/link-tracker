@@ -16,9 +16,6 @@
       "migrations_dir": "./migrations"
     }
   ],
-  "vars": {
-    "HASH_SALT": "your_development_hash_salt_here"
-  },
   "observability": {
     "enabled": true
   }

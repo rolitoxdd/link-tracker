@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS links;
 CREATE TABLE links (
   slug TEXT PRIMARY KEY,
   target_url TEXT NOT NULL,
+  description TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
