@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +24,7 @@ interface ClickStat {
   timestamps: string[];
 }
 
-export function Dashboard() {
+export function Dashboard({ apiSecret }: { apiSecret: string }) {
   const [state, setState] = useState({
     links: [] as LinkData[],
     targetUrl: "",
@@ -36,9 +36,13 @@ export function Dashboard() {
     isStatsOpen: false,
   });
 
+  const headers = useMemo(() => {
+    return { "Authorization": `Basic ${btoa(`admin:${apiSecret}`)}` };
+  }, [apiSecret]);
+
   const fetchStats = async (slug: string) => {
     setState((prev) => ({ ...prev, selectedLinkStats: slug }));
-    const res = await fetch(`/api/links/${slug}/stats`);
+    const res = await fetch(`/api/links/${slug}/stats`, { headers });
     if (res.ok) {
       const data = (await res.json()) as ClickStat[];
       setState((prev) => ({ ...prev, stats: data, isStatsOpen: true }));
@@ -51,7 +55,7 @@ export function Dashboard() {
   }, []);
 
   const fetchLinks = async () => {
-    const res = await fetch("/api/links");
+    const res = await fetch("/api/links", { headers });
     if (res.ok) {
       const data = (await res.json()) as LinkData[];
       setState((prev) => ({ ...prev, links: data }));
@@ -64,7 +68,7 @@ export function Dashboard() {
 
     const res = await fetch("/api/links", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...headers },
       body: JSON.stringify({ target_url: state.targetUrl, custom_slug: state.customSlug, description: state.description }),
     });
 

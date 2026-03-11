@@ -1,7 +1,24 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 
-export const GET: APIRoute = async () => {
+const checkAuth = (request: Request) => {
+  const authHeader = request.headers.get("Authorization");
+  if (!env.API_SECRET || !authHeader || !authHeader.startsWith("Basic ")) return false;
+  try {
+    return atob(authHeader.split(" ")[1]).split(":")[1] === env.API_SECRET;
+  } catch {
+    return false;
+  }
+};
+
+export const GET: APIRoute = async ({ request }) => {
+  if (!checkAuth(request)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { 
+      status: 401, 
+      headers: { "WWW-Authenticate": "Basic realm=\"API\"", "Content-Type": "application/json" } 
+    });
+  }
+
   const db = env.DB;
 
   const { results } = await db.prepare(`
@@ -21,6 +38,13 @@ export const GET: APIRoute = async () => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  if (!checkAuth(request)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { 
+      status: 401, 
+      headers: { "WWW-Authenticate": "Basic realm=\"API\"", "Content-Type": "application/json" } 
+    });
+  }
+
   const db = env.DB;
 
   const body = (await request.json()) satisfies { target_url?: string; custom_slug?: string; description?: string };

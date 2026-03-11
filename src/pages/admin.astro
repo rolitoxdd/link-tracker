@@ -1,6 +1,7 @@
 ---
 import "@/styles/global.css";
 import { Dashboard } from "@/components/Dashboard";
+import { env } from "cloudflare:workers";
 
 // Basic protection is assumed via Cloudflare Access at edge, so no auth logic here.
 ---
@@ -17,6 +18,6 @@ import { Dashboard } from "@/components/Dashboard";
     class="bg-background text-foreground min-h-screen antialiased selection:bg-primary/30 dark"
   >
     <!-- Using dark mode by default for premium feel -->
-    <Dashboard client:load />
+    <Dashboard client:load apiSecret={env.API_SECRET} />
   </body>
 </html>
