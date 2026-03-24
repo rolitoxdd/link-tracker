@@ -22,7 +22,7 @@ export const GET: APIRoute = async ({ request }) => {
   const db = env.DB;
 
   const { results } = await db.prepare(`
-    SELECT l.slug, l.target_url, l.description, l.created_at, COUNT(c.id) as clicks, COUNT(DISTINCT c.visitor_hash) as unique_visitors
+    SELECT l.slug, l.target_url, l.description, strftime('%Y-%m-%dT%H:%M:%SZ', l.created_at) as created_at, COUNT(c.id) as clicks, COUNT(DISTINCT c.visitor_hash) as unique_visitors
     FROM links l
     LEFT JOIN clicks c ON l.slug = c.slug
     GROUP BY l.slug

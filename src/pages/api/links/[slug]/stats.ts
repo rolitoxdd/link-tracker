@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ request, params }) => {
         country, 
         city, 
         COUNT(*) as clicks,
-        json_group_array(clicked_at) as timestamps
+        json_group_array(strftime('%Y-%m-%dT%H:%M:%SZ', clicked_at)) as timestamps
       FROM clicks
       WHERE slug = ?
       GROUP BY country, city
