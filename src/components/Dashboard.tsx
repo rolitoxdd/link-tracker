@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CopyIcon, LinkIcon } from "lucide-react";
+import { CopyIcon, LinkIcon, Trash2 } from "lucide-react";
 
 interface LinkData {
   slug: string;
@@ -34,6 +34,8 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
     stats: [] as ClickStat[],
     selectedLinkStats: null as string | null,
     isStatsOpen: false,
+    isDeleteOpen: false,
+    linkToDelete: null as string | null,
   });
 
   const headers = useMemo(() => {
@@ -80,6 +82,22 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
       fetchLinks();
     } else {
       alert("Failed to create link. Slug might already exist.");
+    }
+  };
+  
+  const deleteLink = async () => {
+    if (!state.linkToDelete) return;
+    
+    const res = await fetch(`/api/links/${state.linkToDelete}`, {
+      method: "DELETE",
+      headers
+    });
+    
+    if (res.ok) {
+      setState((prev) => ({ ...prev, isDeleteOpen: false, linkToDelete: null }));
+      fetchLinks();
+    } else {
+      alert("Failed to delete link.");
     }
   };
 
@@ -195,6 +213,13 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
                               >
                                 <CopyIcon size={14} />
                               </button>
+                              <button
+                                onClick={() => setState((prev) => ({ ...prev, isDeleteOpen: true, linkToDelete: link.slug }))}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0 focus:opacity-100"
+                                title="Delete link"
+                              >
+                                <Trash2 size={14} />
+                              </button>
                             </div>
                           </TableCell>
                           <TableCell className="max-w-[150px] md:max-w-xs truncate align-middle" title={link.target_url}>
@@ -287,6 +312,34 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
                 </Table>
               )}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={state.isDeleteOpen} onOpenChange={(open) => setState(prev => ({ ...prev, isDeleteOpen: open }))}>
+          <DialogContent className="sm:max-w-md dark:bg-card/95 backdrop-blur-md">
+            <DialogHeader>
+              <DialogTitle className="text-destructive flex items-center gap-2">
+                <Trash2 size={20} />
+                Delete Link
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete <span className="font-mono text-primary font-bold">/{state.linkToDelete}</span>? This action cannot be undone and all click statistics will be permanently removed.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex sm:justify-end gap-2 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setState(prev => ({ ...prev, isDeleteOpen: false, linkToDelete: null }))}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={deleteLink}
+              >
+                Delete Link
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
