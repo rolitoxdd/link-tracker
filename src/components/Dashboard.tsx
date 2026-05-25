@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CopyIcon, LinkIcon, Trash2 } from "lucide-react";
+import { CopyIcon, LinkIcon, PencilIcon, Trash2 } from "lucide-react";
 
 interface LinkData {
   slug: string;
@@ -34,6 +34,10 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
     stats: [] as ClickStat[],
     selectedLinkStats: null as string | null,
     isStatsOpen: false,
+    isEditOpen: false,
+    linkToEdit: null as LinkData | null,
+    editTargetUrl: "",
+    editDescription: "",
     isDeleteOpen: false,
     linkToDelete: null as string | null,
   });
@@ -82,6 +86,44 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
       fetchLinks();
     } else {
       alert("Failed to create link. Slug might already exist.");
+    }
+  };
+
+  const openEditLink = (link: LinkData) => {
+    setState((prev) => ({
+      ...prev,
+      isEditOpen: true,
+      linkToEdit: link,
+      editTargetUrl: link.target_url,
+      editDescription: link.description || "",
+    }));
+  };
+
+  const closeEditLink = () => {
+    setState((prev) => ({
+      ...prev,
+      isEditOpen: false,
+      linkToEdit: null,
+      editTargetUrl: "",
+      editDescription: "",
+    }));
+  };
+
+  const updateLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!state.linkToEdit || !state.editTargetUrl) return;
+
+    const res = await fetch(`/api/links/${state.linkToEdit.slug}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...headers },
+      body: JSON.stringify({ target_url: state.editTargetUrl, description: state.editDescription }),
+    });
+
+    if (res.ok) {
+      closeEditLink();
+      fetchLinks();
+    } else {
+      alert("Failed to update link. Check that the destination URL is valid.");
     }
   };
   
@@ -214,6 +256,13 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
                                 <CopyIcon size={14} />
                               </button>
                               <button
+                                onClick={() => openEditLink(link)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground shrink-0 focus:opacity-100"
+                                title="Edit link"
+                              >
+                                <PencilIcon size={14} />
+                              </button>
+                              <button
                                 onClick={() => setState((prev) => ({ ...prev, isDeleteOpen: true, linkToDelete: link.slug }))}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0 focus:opacity-100"
                                 title="Delete link"
@@ -312,6 +361,58 @@ export function Dashboard({ apiSecret }: { apiSecret: string }) {
                 </Table>
               )}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={state.isEditOpen} onOpenChange={(open) => open ? setState(prev => ({ ...prev, isEditOpen: true })) : closeEditLink()}>
+          <DialogContent className="sm:max-w-lg dark:bg-card/95 backdrop-blur-md">
+            <form onSubmit={updateLink} className="space-y-4">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <PencilIcon size={20} />
+                  Edit Link
+                </DialogTitle>
+                <DialogDescription>
+                  Update the destination and details for <span className="font-mono text-primary">/{state.linkToEdit?.slug}</span>.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editTargetUrl">Target URL</Label>
+                  <Input
+                    id="editTargetUrl"
+                    type="url"
+                    className="bg-background shadow-sm"
+                    placeholder="https://example.com/updated/path"
+                    value={state.editTargetUrl}
+                    onChange={(e) => setState(prev => ({ ...prev, editTargetUrl: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editDescription">Description (Optional)</Label>
+                  <Input
+                    id="editDescription"
+                    className="bg-background shadow-sm"
+                    placeholder="What is this link for?"
+                    value={state.editDescription}
+                    onChange={(e) => setState(prev => ({ ...prev, editDescription: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <DialogFooter className="flex sm:justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeEditLink}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
 
